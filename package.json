@@ -1,0 +1,32 @@
+{
+    "name": "bytebuf",
+    "version": "1.0.0",
+    "author": "Ashcon Partovi <ashcon@partovi.net>",
+    "description": "A byte buffer for encoding and decoding binary data.",
+    "module": "bytebuf.mjs",
+    "files": [
+        "bytebuf.mjs"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Electroid/bytebuf"
+    },
+    "bugs": {
+        "url": "https://github.com/Electroid/bytebuf/issues"
+    },
+    "keywords": [
+        "bytebuffer",
+        "dataview",
+        "binary",
+        "buffer",
+        "arraybuffer",
+        "encode",
+        "decode",
+        "varint"
+    ],
+    "license": "MIT",
+    "scripts": {
+        "test:deno": "deno run bytebuf_test.mjs",
+        "test:node": "node bytebuf_test.mjs"
+    }
+}
