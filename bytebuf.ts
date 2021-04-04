@@ -1,8 +1,5 @@
-export {
-  ByteBuf,
-  IntResult,
-  StringResult
-}
+export { ByteBuf }
+export type { IntResult, StringResult }
 
 /**
  * A byte buffer.

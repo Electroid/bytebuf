@@ -1,6 +1,6 @@
 {
   "name": "bytebuf",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "Ashcon Partovi <ashcon@partovi.net>",
   "description": "A byte buffer for encoding and decoding binary data.",
   "module": "dist/bytebuf.mjs",
