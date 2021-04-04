@@ -1,0 +1,15 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "es2020",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "checkJs": true,
+    "strict": true,
+    "declaration": true,
+    "outDir": "dist/"
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}

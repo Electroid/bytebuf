@@ -1,32 +1,35 @@
 {
-    "name": "bytebuf",
-    "version": "1.0.0",
-    "author": "Ashcon Partovi <ashcon@partovi.net>",
-    "description": "A byte buffer for encoding and decoding binary data.",
-    "module": "bytebuf.mjs",
-    "files": [
-        "bytebuf.mjs"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/Electroid/bytebuf"
-    },
-    "bugs": {
-        "url": "https://github.com/Electroid/bytebuf/issues"
-    },
-    "keywords": [
-        "bytebuffer",
-        "dataview",
-        "binary",
-        "buffer",
-        "arraybuffer",
-        "encode",
-        "decode",
-        "varint"
-    ],
-    "license": "MIT",
-    "scripts": {
-        "test:deno": "deno run bytebuf_test.mjs",
-        "test:node": "node bytebuf_test.mjs"
-    }
+  "name": "bytebuf",
+  "version": "1.1.0",
+  "author": "Ashcon Partovi <ashcon@partovi.net>",
+  "description": "A byte buffer for encoding and decoding binary data.",
+  "module": "dist/bytebuf.mjs",
+  "types": "dist/bytebuf.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Electroid/bytebuf"
+  },
+  "bugs": {
+    "url": "https://github.com/Electroid/bytebuf/issues"
+  },
+  "keywords": [
+    "bytebuffer",
+    "dataview",
+    "binary",
+    "buffer",
+    "arraybuffer",
+    "encode",
+    "decode",
+    "varint"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc && mv dist/bytebuf.js dist/bytebuf.mjs",
+    "prepublish": "npm run build",
+    "test:deno": "npm run build && deno run bytebuf_test.mjs",
+    "test:node": "npm run build && node bytebuf_test.mjs"
+  }
 }

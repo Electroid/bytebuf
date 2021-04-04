@@ -14,7 +14,7 @@ npm i bytebuf
 import { ByteBuf } from "bytebuf"
 
 const data = new Uint8Array(1024)
-const buffer = new ByteBuf(data.buffer)
+const buffer = ByteBuf.from(data)
 
 buffer.writeInt32(16)
 buffer.writeString("Encoding is fun!")
