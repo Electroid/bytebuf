@@ -900,8 +900,10 @@ class ByteBuf extends DataView {
   getVarString(byteOffset: number, maxByteLength?: number): StringResult {
     const {
       value: byteLength,
-      byteLength: delimeterOffset } = this.getVarUint(byteOffset, maxByteLength)
-    // FIXME: byteLength of VarInt !== byteLength of String
+      byteLength: delimeterOffset } = this.getVarUint(byteOffset)
+    if (maxByteLength !== undefined && byteLength > maxByteLength) {
+      throw new RangeError("VarString must be less than or equal to " + maxByteLength + " bytes.")
+    }
     const value = this.getString(byteOffset + delimeterOffset, byteLength)
     return { value, byteLength: byteLength + delimeterOffset }
   }
