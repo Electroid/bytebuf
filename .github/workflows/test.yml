@@ -1,31 +1,16 @@
 name: Test
-on:
-  push:
-    branches: [$default-branch]
-  pull_request:
-    branches: [$default-branch]
+on: push
 jobs:
-  node:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x, 15.x, 16.x]
+        node-version: [12.x, 14.x, 16.x]
     steps:
     - uses: actions/checkout@v2
-    - name: Use NodeJS ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+    - uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm run test:node
-  deno:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        deno-version: [v1.x]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Use Deno ${{ matrix.deno-version }}
-      uses: denolib/setup-deno@v2
-      with:
-        deno-version: ${{ matrix.deno-version }}
-    - run: npm run test:deno
+        cache: npm
+    - run: npm install
+    - run: npm run test
