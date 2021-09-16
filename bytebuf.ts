@@ -73,6 +73,13 @@ class ByteBuf extends DataView {
   }
 
   /**
+   * Clears the byte buffer.
+   */
+  clear(): void {
+    this.getUint8Array(0).fill(0)
+  }
+
+  /**
    * Gets a boolean.
    * @param byteOffset The byte offset.
    */
