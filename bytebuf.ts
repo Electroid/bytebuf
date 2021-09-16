@@ -50,7 +50,7 @@ class ByteBuf extends DataView {
   }
 
   /**
-   * Gets the number of remaining bytes.
+   * The number of remaining bytes.
    * @returns The number of bytes remaining.
    */
   get bytesRemaining(): number {
@@ -971,11 +971,11 @@ interface IntResult {
   /**
    * The byte length.
    */
-  byteLength: number
+  readonly byteLength: number
   /**
    * The value.
    */
-  value: number
+  readonly value: number
 }
 
 /**
@@ -985,9 +985,9 @@ interface StringResult {
   /**
    * The byte length.
    */
-  byteLength: number
+  readonly byteLength: number
   /**
    * The value.
    */
-  value: string
+  readonly value: string
 }

@@ -29,7 +29,26 @@
   "scripts": {
     "build": "tsc && mv dist/bytebuf.js dist/bytebuf.mjs",
     "prepublish": "npm run build",
-    "test:deno": "npm run build && deno run bytebuf_test.mjs",
-    "test:node": "npm run build && node bytebuf_test.mjs"
+    "test": "ava"
+  },
+  "devDependencies": {
+    "ava": "^3.15.0",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  },
+  "ava": {
+    "files": [
+      "*.test.ts"
+    ],
+    "extensions": {
+      "ts": "module"
+    },
+    "nonSemVerExperiments": {
+      "configurableModuleFormat": true
+    },
+    "nodeArguments": [
+      "--no-warnings",
+      "--loader=ts-node/esm"
+    ]
   }
 }

@@ -1,6 +1,24 @@
-import { ByteBuf } from "./dist/bytebuf.mjs"
+import test, { ExecutionContext } from "ava"
+import { ByteBuf } from "./bytebuf.js"
 
-const tests = [
+interface TestValue<V> {
+  readonly value: V
+  readonly bytes: Uint8Array
+  readonly littleEndian?: boolean
+  readonly byteLength?: number
+  readonly byteEncoding?: string
+}
+
+interface TestEntry<V> {
+  readonly type: string
+  readonly values: TestValue<V>[]
+  getValue(buffer: ByteBuf, entry: TestValue<V>): V
+  readValue(buffer: ByteBuf, entry: TestValue<V>): V
+  setValue(buffer: ByteBuf, entry: TestValue<V>): any
+  writeValue(buffer: ByteBuf, entry: TestValue<V>): any
+}
+
+const entries: TestEntry<any>[] = [
   {
     type: "Bool",
     getValue: function(buffer) {
@@ -10,10 +28,10 @@ const tests = [
       return buffer.readBool()
     },
     setValue: function(buffer, entry) {
-      return buffer.setBool(0, entry.value)
+      buffer.setBool(0, entry.value)
     },
     writeValue: function(buffer, entry) {
-      return buffer.writeBool(entry.value)
+      buffer.writeBool(entry.value)
     },
     values: [
       {
@@ -373,9 +391,9 @@ const tests = [
     getValue: function(buffer, entry) {
       const { value, byteLength } = buffer.getVarInt(0, entry.byteLength)
     
-      console.assert(byteLength === entry.byteLength,
-        { type: "VarInt", expected: entry.byteLength,
-          actual: byteLength, value })
+      if (entry.byteLength !== byteLength) {
+        throw new RangeError("Expected byteLength to be " + entry.byteLength + ", but received " + byteLength)
+      }
 
       return value
     },
@@ -431,9 +449,9 @@ const tests = [
     getValue: function(buffer, entry) {
       const { value, byteLength } = buffer.getVarUint(0, entry.byteLength)
     
-      console.assert(byteLength === entry.byteLength,
-        { type: "VarUint", expected: entry.byteLength,
-          actual: byteLength, value })
+      if (entry.byteLength !== byteLength) {
+        throw new RangeError("Expected byteLength to be " + entry.byteLength + ", but received " + byteLength)
+      }
 
       return value
     },
@@ -474,9 +492,9 @@ const tests = [
     getValue: function(buffer, entry) {
       const { value, byteLength } = buffer.getVarZint(0, entry.byteLength)
     
-      console.assert(byteLength === entry.byteLength,
-        { type: "VarZint", expected: entry.byteLength,
-          actual: byteLength, value })
+      if (entry.byteLength !== byteLength) {
+        throw new RangeError("Expected byteLength to be " + entry.byteLength + ", but received " + byteLength)
+      }
 
       return value
     },
@@ -523,8 +541,8 @@ const tests = [
     },
     values: [
       {
-        value: new Uint8Array([]),
-        bytes: new Uint8Array([])
+        value: new Uint8Array(0),
+        bytes: new Uint8Array(0)
       },
       {
         value: new Uint8Array([0xff]),
@@ -552,8 +570,8 @@ const tests = [
     },
     values: [
       {
-        value: new Uint16Array([]),
-        bytes: new Uint8Array([])
+        value: new Uint16Array(0),
+        bytes: new Uint8Array(0)
       },
       {
         value: new Uint16Array([0xff]),
@@ -621,9 +639,9 @@ const tests = [
     getValue: function(buffer, entry) {
       const { value, byteLength } = buffer.getVarString(0, entry.byteLength)
 
-      console.assert(byteLength === entry.byteLength,
-        { type: "VarString", expected: entry.byteLength,
-          actual: byteLength, value })
+      if (entry.byteLength !== byteLength) {
+        throw new RangeError("Expected byteLength to be " + entry.byteLength + ", but received " + byteLength)
+      }
 
       return value
     },
@@ -656,60 +674,39 @@ const tests = [
   }
 ]
 
-function equals(a, b) {
-  if (a === b) return true
-  if (!ArrayBuffer.isView(a) || !ArrayBuffer.isView(b)) return false
-  if (a.byteLength !== b.byteLength) return false
-  return a.every((val, i) => val === b[i])
-}
+test("ByteBuf", (ctx: ExecutionContext) => {
+  for (const entry of entries) {
+    const { type, values, getValue, readValue, setValue, writeValue } = entry
 
-function testType(test) {
-  const { type, values, getValue, readValue, setValue, writeValue } = test
+    for (const entry of values) {
+      const { value, bytes, byteLength } = entry
+      const buffer = ByteBuf.from(bytes)
+  
+      const valueGet = getValue(buffer, entry)
+      ctx.deepEqual(value, valueGet,
+        `expected get${type}() to return ${value}, but got ${valueGet} instead.`)
 
-  for (const entry of values) {
-    const { value, bytes, byteLength } = entry
-    const buffer = ByteBuf.from(bytes.slice())
+      const valueRead = readValue(buffer, entry)
+      ctx.deepEqual(valueGet, valueRead,
+        `expected read${type}() to return ${value}, but got ${valueRead} instead.`)
+      ctx.is(buffer.byteOffset, buffer.byteLength,
+        `expected read${type}() to offset ${buffer.byteLength} bytes, but got ${buffer.byteOffset} instead.`)
+  
+      buffer.reset()
+      buffer.clear()
 
-    const decoded = getValue(buffer, entry)
-    console.assert(equals(value, decoded),
-      { method: `get${type}`, expected: value, actual: decoded, bytes })
-
-    if (!equals(decoded, readValue(buffer, entry))) {
-      console.warn(`read${type} return value does not match get${type}`)
-    }
-
-    if (buffer.byteOffset !== buffer.byteLength) {
-      console.warn(`read${type} byte offset does not match ${buffer.byteLength}`)
-    }
-
-    buffer.reset()
-    new Uint8Array(buffer.buffer).set(new Uint8Array(buffer.byteLength))
-
-    const encodedLength = setValue(buffer, entry)
-    console.assert(byteLength === encodedLength,
-      { method: `set${type} (length)`,
-        expected: byteLength, actual: encodedLength, bytes })
-
-    const encoded = new Uint8Array(buffer.buffer)
-    console.assert(equals(bytes, encoded),
-      { method: `set${type}`, expected: bytes, actual: encoded, value })
-
-    writeValue(buffer, entry)
-
-    if (!equals(bytes, encoded)) {
-      console.warn(`write${type} encoding not match set${type}`)
-    }
-
-    if (buffer.byteOffset !== buffer.byteLength) {
-      console.warn(`write${type} byte offset does not match ${buffer.byteLength}`)
+      const lengthSet = setValue(buffer, entry)
+      ctx.is(lengthSet, byteLength,
+        `expected set${type}(${value}) to return a byte length of ${byteLength}, but got ${lengthSet} instead.`)
+      const bytesSet = new Uint8Array(buffer.buffer)
+      ctx.deepEqual(bytesSet, bytes,
+        `expected set${type}(${value}) to encode as ${bytes}, but got ${bytesSet} instead.`)
+  
+      writeValue(buffer, entry)
+      ctx.deepEqual(bytesSet, bytes,
+        `expected write${type}(${value}) to encode as ${bytes}, but got ${bytesSet} instead.`)
+      ctx.is(buffer.byteOffset, buffer.byteLength,
+        `expected write${type}(${value}) to offset ${buffer.byteLength} bytes, but got ${buffer.byteOffset} instead.`)
     }
   }
-}
-
-function testAll() {
-  for (const test of tests) {
-    testType(test)
-  }
-}
-
-testAll()
+})
