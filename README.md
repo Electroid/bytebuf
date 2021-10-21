@@ -1,5 +1,5 @@
 # bytebuf
-![npm](https://img.shields.io/npm/v/bytebuf) ![David](https://img.shields.io/david/electroid/bytebuf)
+![npm](https://img.shields.io/npm/v/bytebuf)
 
 A byte buffer for encoding and decoding binary data in JavaScript. Supports the major web browsers, NodeJS, Deno, and Cloudflare Workers.
 
