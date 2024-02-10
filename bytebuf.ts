@@ -839,7 +839,7 @@ class ByteBuf extends DataView {
    * @param byteEncoding The byte encoding.
    * @returns The value.
    */
-  getString(byteOffset: number, byteLength?: number, byteEncoding?: string): string {
+  getString(byteOffset: number, byteLength?: number, byteEncoding?: BufferEncoding): string {
     const decoder = new TextDecoder(byteEncoding || "utf-8")
     const encoded = this.getUint8Array(byteOffset, byteLength)
     return decoder.decode(encoded)
@@ -851,7 +851,7 @@ class ByteBuf extends DataView {
    * @param byteEncoding The byte encoding.
    * @returns The value.
    */
-  readString(byteLength?: number, byteEncoding?: string): string {
+  readString(byteLength?: number, byteEncoding?: BufferEncoding): string {
     const value = this.getString(this.#byteOffset, byteLength, byteEncoding)
     if (byteLength === undefined) {
       this.#byteOffset = this.byteLength
@@ -868,7 +868,7 @@ class ByteBuf extends DataView {
    * @param byteEncoding The byte encoding.
    * @returns The byte length.
    */
-  setString(byteOffset: number, value: string, byteEncoding?: string): number {
+  setString(byteOffset: number, value: string, byteEncoding?: BufferEncoding): number {
     // TODO: add support for "utf-16-be" and "utf-16-le"
     if (byteEncoding && byteEncoding !== "utf-8") {
       throw new TypeError("String encoding '" + byteEncoding + "' is not supported")
@@ -885,7 +885,7 @@ class ByteBuf extends DataView {
    * @param value The string.
    * @param byteEncoding The byte encoding.
    */
-  writeString(value: string, byteEncoding?: string): void {
+  writeString(value: string, byteEncoding?: BufferEncoding): void {
     const byteLength = this.setString(this.#byteOffset, value, byteEncoding)
     this.#byteOffset += byteLength
   }
